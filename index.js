@@ -39,7 +39,7 @@ const backup = async (username, password, host, port) => {
     if (username) args.push("--username", username)
     if (password) args.push("--password", password)
     if (database) args.push("--db", database)
-    if (collection) args.push("--collection", database)
+    if (collection) args.push("--collection", collection)
     if (backupUsers) args.push("--dumpDbUsersAndRoles")
 
     var dump = childProcess.spawn("mongodump", args);
