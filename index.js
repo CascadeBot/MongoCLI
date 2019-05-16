@@ -26,7 +26,7 @@ const backup = async (username, password, host, port) => {
     ]);
 
     let backupUsers;
-    if (database) {
+    if (database && !collection) {
         ({ backupUsers } = await prompt({
             type: "confirm",
             name: "backupUsers",
