@@ -12,9 +12,6 @@ const backup = async (username, password, host, port) => {
             name: "path",
             message: "What folder to restore to?",
             initial: ".\\dump",
-            validate(path) {
-                return fs.existsSync(path) && fs.lstatSync(path).isDirectory() ? true : "Please enter the path of a valid directory!";
-            }
         },
         {
             type: "input",
@@ -41,7 +38,7 @@ const backup = async (username, password, host, port) => {
     var args = ["--host", host + ":" + port, "--out", path]
     if (username) args.push("--username", username)
     if (password) args.push("--password", password)
-    if (database) args.push("--database", database)
+    if (database) args.push("--db", database)
     if (collection) args.push("--collection", database)
     if (backupUsers) args.push("--dumpDbUsersAndRoles")
 
