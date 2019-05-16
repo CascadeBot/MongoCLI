@@ -4,7 +4,62 @@ const childProcess = require("child_process");
 const fs = require("fs");
 
 const backup = async (username, password, host, port) => {
-    console.log()
+    console.log(chalk.red("----- Backup mode -----"));
+
+    let { path, database, collection } = await prompt([
+        {
+            type: "input",
+            name: "path",
+            message: "What folder to restore to?",
+            initial: ".\\dump",
+            validate(path) {
+                return fs.existsSync(path) && fs.lstatSync(path).isDirectory() ? true : "Please enter the path of a valid directory!";
+            }
+        },
+        {
+            type: "input",
+            name: "database",
+            message: "Which database? (Empty for all)"
+        },
+        {
+            type: "input",
+            name: "collection",
+            message: "Which collection? (Empty for all)"
+        }
+    ]);
+
+    let backupUsers;
+    if (database) {
+        ({ backupUsers } = await prompt({
+            type: "confirm",
+            name: "backupUsers",
+            initial: true,
+            message: "Backup users?"
+        }));
+    }
+
+    var args = ["--host", host + ":" + port, "--out", path]
+    if (username) args.push("--username", username)
+    if (password) args.push("--password", password)
+    if (database) args.push("--database", database)
+    if (collection) args.push("--collection", database)
+    if (backupUsers) args.push("--dumpDbUsersAndRoles")
+
+    var dump = childProcess.spawn("mongodump", args);
+    dump.stdout.on("data", data => {
+        console.log(data);
+    })
+    dump.stderr.on("data", data => {
+        console.log(chalk.red(data))
+    })
+    dump.on("exit", code => {
+        if (code != 0) {
+            console.log(chalk.red(`Mongodump exited with a non-zero exit code! Code: ${code}`));
+        } else {
+            console.log(chalk.green("Exited mongodump successfully!"))
+        }
+    })
+
 }
 
 const run = async () => {
@@ -70,19 +125,7 @@ const run = async () => {
 
     if (mode === "Backup") backup(username, password, host, port);
     if (mode === "Restore") restore(username, password, host, port);
-    
-    let { database, collection } = await prompt([
-        {
-            type: "input",
-            name: "database",
-            message: "Which database? (Empty for all)"
-        }, 
-        {
-            type: "input",
-            name: "collection",
-            message: "Which collection? (Empty for all)"
-        }
-    ]);
+
 }
 
 run().catch(error => {
