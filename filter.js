@@ -1,4 +1,4 @@
-const bsonStream = require("bson-stream");
+const BsonStream = require("bson-stream");
 const bson = require("bson");
 const fs = require("fs");
 const path = require("path");
@@ -25,13 +25,16 @@ const run = async () => {
 
     let { bsonFile } = await prompt({
         type: "select",
+        name: "bsonFile",
         choices: getAllFiles(path),
         message: "Select a BSON file to filter"
     });
 
+    console.log(bsonFile);
+
     let readStream = fs.createReadStream(bsonFile);
 
-    readStream.pipe(new BSONStream()).on('data', function (obj) {
+    readStream.pipe(new BsonStream()).on('data', function (obj) {
         console.log(obj);
     });
 
