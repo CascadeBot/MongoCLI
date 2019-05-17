@@ -6,26 +6,26 @@ const fs = require("fs");
 const backup = async (username, password, host, port) => {
     console.log(chalk.red("----- Backup mode -----"));
 
-    let { path, database, collection } = await prompt([
+    let { path, database, query } = await prompt([
         {
             type: "input",
             name: "path",
-            message: "What folder to restore to?",
-            initial: ".\\dump",
+            message: "What folder to backup to?",
+            initial: "dump",
         },
         {
             type: "input",
             name: "database",
-            message: "Which database? (Empty for all)"
+            message: "Which database to backup? (Empty for all)"
         },
         {
             type: "input",
-            name: "collection",
-            message: "Which collection? (Empty for all)"
+            name: "query",
+            message: "Do you have a query for the data? (Empty for none)"
         }
     ]);
 
-    let backupUsers;
+    let backupUsers, collection;
     if (database && !collection) {
         ({ backupUsers } = await prompt({
             type: "confirm",
@@ -33,6 +33,12 @@ const backup = async (username, password, host, port) => {
             initial: true,
             message: "Backup users?"
         }));
+    } else {
+        ({ collection } = await prompt({
+            type: "input",
+            name: "collection",
+            message: "Which collection to backup? (Empty for all)"
+        }))
     }
 
     var args = ["--host", host + ":" + port, "--out", path]
@@ -41,6 +47,7 @@ const backup = async (username, password, host, port) => {
     if (database) args.push("--db", database)
     if (collection) args.push("--collection", collection)
     if (backupUsers) args.push("--dumpDbUsersAndRoles")
+    if (query) args.push("--query", query)
 
     var dump = childProcess.spawn("mongodump", args);
     dump.stderr.setEncoding("UTF-8")
@@ -58,7 +65,47 @@ const backup = async (username, password, host, port) => {
             console.log(chalk.green("Exited mongodump successfully!"))
         }
     })
+}
 
+const restore = async (username, password, host, port) => {
+    console.log(chalk.red("----- Restore mode -----"));
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var args = ["--host", host + ":" + port, "--dir", path]
+    if (username) args.push("--username", username)
+    if (password) args.push("--password", password)
+    if (database) args.push("--db", database)
+    if (collection) args.push("--collection", collection)
+    if (backupUsers) args.push("--restoreDbUsersAndRoles")
+    if (query) args.push("--query", query)
+
+    var dump = childProcess.spawn("mongodump", args);
+    dump.stderr.setEncoding("UTF-8")
+    dump.stdout.on("data", data => {
+        console.log(data.replace("\n", ""));
+    })
+    dump.stderr.setEncoding("UTF-8")
+    dump.stderr.on("data", data => {
+        console.log(chalk.red(data.replace("\n", "")))
+    })
+    dump.on("exit", code => {
+        if (code != 0) {
+            console.log(chalk.red(`Mongodump exited with a non-zero exit code! Code: ${code}`));
+        } else {
+            console.log(chalk.green("Exited mongodump successfully!"))
+        }
+    })
 }
 
 const run = async () => {
