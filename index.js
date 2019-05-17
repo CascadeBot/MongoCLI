@@ -43,9 +43,11 @@ const backup = async (username, password, host, port) => {
     if (backupUsers) args.push("--dumpDbUsersAndRoles")
 
     var dump = childProcess.spawn("mongodump", args);
+    dump.stderr.setEncoding("UTF-8")
     dump.stdout.on("data", data => {
         console.log(data.replace("\n", ""));
     })
+    dump.stderr.setEncoding("UTF-8")
     dump.stderr.on("data", data => {
         console.log(chalk.red(data.replace("\n", "")))
     })
