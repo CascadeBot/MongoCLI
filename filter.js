@@ -101,14 +101,18 @@ const run = async () => {
 
     let readStream = fs.createReadStream(bsonFile);
 
+    let originalNum = 0, filteredNum = 0;
+
     let stream = readStream
         .pipe(new BsonStream())
         .pipe(streamFilter(data => {
+            originalNum++
             if (filterBy === "guild_id") return data._id === filter
             if (filterBy === "guild_ids") return filter.includes(data._id)
             if (filterBy === "creation_date") return new Date((Date.now() - parseDuration(filter))) <= new Date(data.creationDate)
         }))
         .pipe(through2.obj(function (obj, enc, callback) {
+            filteredNum++
             if (check) console.log(obj)
             this.push(obj)
             callback()
@@ -118,6 +122,11 @@ const run = async () => {
             callback()
         }))
         .pipe(fs.createWriteStream(outPath))
+
+        stream.on("finish", end => {
+            console.log("Original: " + originalNum)
+            console.log("Filtered: " + filteredNum)
+        })
 
 };
 
