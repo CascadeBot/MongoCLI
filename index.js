@@ -44,10 +44,10 @@ const backup = async (username, password, host, port) => {
 
     var dump = childProcess.spawn("mongodump", args);
     dump.stdout.on("data", data => {
-        console.log(data);
+        console.log(data.replace("\n", ""));
     })
     dump.stderr.on("data", data => {
-        console.log(chalk.red(data))
+        console.log(chalk.red(data.replace("\n", "")))
     })
     dump.on("exit", code => {
         if (code != 0) {
