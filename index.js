@@ -4,7 +4,6 @@ const childProcess = require("child_process");
 const fs = require("fs");
 
 const backup = async (username, password, host, port) => {
-    console.log(chalk.red("----- Backup mode -----"));
 
     let { path, database, query } = await prompt([
         {
@@ -26,14 +25,13 @@ const backup = async (username, password, host, port) => {
     ]);
 
     let backupUsers, collection;
-    if (database && !collection) {
-        ({ backupUsers } = await prompt({
-            type: "confirm",
-            name: "backupUsers",
-            initial: true,
-            message: "Backup users?"
-        }));
-    } else {
+    ({ backupUsers } = await prompt({
+        type: "confirm",
+        name: "backupUsers",
+        initial: true,
+        message: "Backup users?"
+    }));
+    if (!backupUsers) {
         ({ collection } = await prompt({
             type: "input",
             name: "collection",
@@ -68,7 +66,6 @@ const backup = async (username, password, host, port) => {
 }
 
 const restore = async (username, password, host, port) => {
-    console.log(chalk.red("----- Restore mode -----"));
 
 
 
@@ -88,7 +85,6 @@ const restore = async (username, password, host, port) => {
     if (database) args.push("--db", database)
     if (collection) args.push("--collection", collection)
     if (backupUsers) args.push("--restoreDbUsersAndRoles")
-    if (query) args.push("--query", query)
 
     var dump = childProcess.spawn("mongodump", args);
     dump.stderr.setEncoding("UTF-8")
@@ -169,8 +165,14 @@ const run = async () => {
         choices: ["Backup", "Restore"]
     });
 
-    if (mode === "Backup") backup(username, password, host, port);
-    if (mode === "Restore") restore(username, password, host, port);
+    if (mode === "Backup") {
+        console.log(chalk.red("----- Backup mode -----")); 
+        backup(username, password, host, port);
+    }
+    if (mode === "Restore") {
+        console.log(chalk.red("----- Restore mode -----")); 
+        restore(username, password, host, port);
+    }
 
 }
 
