@@ -2,6 +2,10 @@ const chalk = require("chalk");
 const { prompt } = require("enquirer");
 const childProcess = require("child_process");
 const fs = require("fs");
+const path = require("path");
+
+const isDirectory = source => fs.lstatSync(source).isDirectory()
+const getDirectories = source => fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory)
 
 const backup = async (username, password, host, port) => {
 
@@ -67,19 +71,44 @@ const backup = async (username, password, host, port) => {
 
 const restore = async (username, password, host, port) => {
 
+    let { bsonFile, collection, database, dryRun } = await prompt([
+        {
+            type: "input",
+            name: "bsonFile",
+            message: "Which BSON file would you like to backup?",
+            initial: "dump",
+            validate(file) {
+                return (file.endsWith(".bson") && fs.existsSync(file)) ? true : "Please enter the path to a valid BSON file!";
+            }
+        },
+        {
+            type: "input",
+            name: "database",
+            message: "Which database to restore to?",
+            validate(database) {
+                return database.length > 0 ? true : "The database is required!"
+            }
+        },
+        {
+            type: "input",
+            name: "collection",
+            message: "Which collection to restore to?",
+            validate(collection) {
+                return collection.length > 0 ? true : "The collection is required!"
+            }
+        },
+        {
+            type: "confirm",
+            name: "dryRun",
+            message: "Do you want to do a dry run? HIGHLY RECOMMENDED",
+            initial: true
+        }]);
+
+    
 
 
 
-
-
-
-
-
-
-
-
-
-    var args = ["--host", host + ":" + port, "--dir", path]
+    let args = ["--host", host + ":" + port, "--dir", path]
     if (username) args.push("--username", username)
     if (password) args.push("--password", password)
     if (database) args.push("--db", database)
@@ -166,11 +195,11 @@ const run = async () => {
     });
 
     if (mode === "Backup") {
-        console.log(chalk.red("----- Backup mode -----")); 
+        console.log(chalk.red("----- Backup mode -----"));
         backup(username, password, host, port);
     }
     if (mode === "Restore") {
-        console.log(chalk.red("----- Restore mode -----")); 
+        console.log(chalk.red("----- Restore mode -----"));
         restore(username, password, host, port);
     }
 
