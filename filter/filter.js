@@ -69,8 +69,8 @@ const getGuildFilter = async () => {
     }
 
     return data => {
-        if (filterBy === "guild_id") return data._id === filter
-        if (filterBy === "guild_ids") return filter.includes(data._id)
+        if (filterBy === "guild_id") return data._id.toNumber() === filter
+        if (filterBy === "guild_ids") return filter.includes(data._id.toNumber())
         if (filterBy === "creation_date") return new Date((Date.now() - parseDuration(filter))) <= new Date(data.creationDate)
     }
 }
@@ -154,13 +154,14 @@ const getPlaylistFilter = async () => {
             if (filterBy.endsWith("insensitive")) return data.name.toLowerCase() === filter.toLowerCase()
             return data.name === filter
         }
-        if (filterBy === "guild_id") return (data.scope === "GUILD") && (data.ownerID === filter)
-        if (filterBy === "user_id") return (data.scope === "USER") && (data.ownerID === filter)
-        if (filterBy === "owner_id") return data.ownerID === filter
+        if (filterBy === "guild_id") return (data.scope === "GUILD") && (data.ownerID.toNumber() === filter)
+        if (filterBy === "user_id") return (data.scope === "USER") && (data.ownerID.toNumber() === filter)
+        if (filterBy === "owner_id") return data.ownerID.toNumber() === filter
     }
 }
 
 const run = async () => {
+    console.log(chalk.bold.green("Welcome to Cascade Bot's Mongo CLI Filter!"))
 
     let { path } = await prompt({
         type: "input",
@@ -174,7 +175,9 @@ const run = async () => {
     let { bsonFile } = await prompt({
         type: "select",
         name: "bsonFile",
-        choices: getAllFiles(path),
+        choices: getAllFiles(path).filter(path => {
+            return path.endsWith(".bson")
+        }),
         message: "Select a BSON file to filter"
     })
 
@@ -182,7 +185,7 @@ const run = async () => {
         type: "input",
         name: "outPath",
         message: "What file would you like to output to?",
-        validate(outPath) { return (outPath.trim().length > 0 && outPath.endsWith(".bson")) ? (outPath !== path ? "Please don't choose the same output as the source! *BAD THINGS WILL HAPPEN*" : true) : "Please enter a file path with a .bson extension!" }
+        validate(outPath) { return (outPath.trim().length > 0 && outPath.endsWith(".bson")) ? (outPath === path ? "Please don't choose the same output as the source! *BAD THINGS WILL HAPPEN*" : true) : "Please enter a file path with a .bson extension!" }
     })
 
     let { dataType } = await prompt({
