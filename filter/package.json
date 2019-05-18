@@ -6,7 +6,7 @@
   "bin": "filter.js",
   "scripts": {
     "start": "node filter.js",
-    "build": "pkg . -t node10-linux-x64,node10-win-x64 --out-path bin"
+    "build": "pkg . -t node10-linux-x64,node10-win-x64 --out-path ../bin"
   },
   "author": "",
   "license": "MIT",
