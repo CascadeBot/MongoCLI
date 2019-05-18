@@ -171,20 +171,19 @@ const run = async () => {
         }
     })
 
-    let { bsonFile, outPath } = await prompt([
-        {
-            type: "select",
-            name: "bsonFile",
-            choices: getAllFiles(path),
-            message: "Select a BSON file to filter"
-        },
-        {
-            type: "input",
-            name: "outPath",
-            message: "What file would you like to output to?",
-            validate(path) { return (path.trim().length > 0 && path.endsWith(".bson")) ? true : "Please enter a file path with a .bson extension!" }
-        }
-    ])
+    let { bsonFile } = await prompt({
+        type: "select",
+        name: "bsonFile",
+        choices: getAllFiles(path),
+        message: "Select a BSON file to filter"
+    })
+
+    let { outPath } = await prompt({
+        type: "input",
+        name: "outPath",
+        message: "What file would you like to output to?",
+        validate(outPath) { return (outPath.trim().length > 0 && outPath.endsWith(".bson")) ? (outPath !== path ? "Please don't choose the same output as the source! *BAD THINGS WILL HAPPEN*" : true) : "Please enter a file path with a .bson extension!" }
+    })
 
     let { dataType } = await prompt({
         type: "select",
