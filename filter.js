@@ -123,16 +123,18 @@ const getPlaylistFilter = async () => {
             name: "caseInsensitive",
             message: "Filter by case-insensitive name?"
         })
-        if (caseInsensitive) filterBy += "_insensitive"
+        if (caseInsensitive) {
+            filterBy += "_insensitive"
+        }
 
-            ({ filter }) = await prompt({
-                type: "input",
-                name: "filter",
-                message: "Enter a name to filter by",
-                validate(name) {
-                    return (name.length > 0) ? true : "Enter a name!"
-                }
-            })
+        ({ filter } = await prompt({
+            type: "input",
+            name: "filter",
+            message: "Enter a name to filter by",
+            validate(name) {
+                return (name.length > 0) ? true : "Enter a name!"
+            }
+        }))
     } else if (filterBy === "scope") {
         ({ filter } = await prompt({
             type: "select",
@@ -149,7 +151,7 @@ const getPlaylistFilter = async () => {
     return data => {
         if (filterBy === "scope") return data.scope === filter
         if (filterBy.startsWith("name")) {
-            if (filterBy.endsWith("insensitive")) return data.name.toLowercase() === filter.toLowercase()
+            if (filterBy.endsWith("insensitive")) return data.name.toLowerCase() === filter.toLowerCase()
             return data.name === filter
         }
         if (filterBy === "guild_id") return (data.scope === "GUILD") && (data.ownerID === filter)
