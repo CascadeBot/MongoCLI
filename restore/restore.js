@@ -1,3 +1,9 @@
+const fs = require("fs")
+const bson = require("bson")
+const bsonStream = require("bson-stream")
+const through2 = require("through2")
+
+
 const run = async () => {
     console.log(chalk.bold.green("Welcome to Cascade Bot's Mongo CLI Restore!"))
 
@@ -83,30 +89,6 @@ const run = async () => {
             message: "Do you want to do a dry run? HIGHLY RECOMMENDED",
             initial: true
         }]);
-
-    let args = ["--host", host + ":" + port, "--dir", path]
-    if (username) args.push("--username", username)
-    if (password) args.push("--password", password)
-    if (database) args.push("--db", database)
-    if (collection) args.push("--collection", collection)
-    if (dryRun) args.push("")
-
-    var dump = childProcess.spawn("mongorestore", args);
-    dump.stderr.setEncoding("UTF-8")
-    dump.stdout.on("data", data => {
-        console.log(data.replace("\n", ""));
-    })
-    dump.stderr.setEncoding("UTF-8")
-    dump.stderr.on("data", data => {
-        console.log(chalk.red(data.replace("\n", "")))
-    })
-    dump.on("exit", code => {
-        if (code != 0) {
-            console.log(chalk.red(`Mongorestore exited with a non-zero exit code! Code: ${code}`));
-        } else {
-            console.log(chalk.green("Exited mongorestore successfully!"))
-        }
-    })
 
 }
 
