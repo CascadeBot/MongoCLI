@@ -4,8 +4,10 @@
 #
 # All builds files are outputted in the "bin" directory
 
+BASEDIR=$(pwd)
+
 # Build the filter CLI tool
-cd filter && npm install && npm run-script build
+cd "$BASEDIR/filter" && npm install && npm run-script build
 
 # Build the restore CLI tool
-cd restore && npm install && npm run-script build
+cd "$BASEDIR/restore" && npm install && npm run-script build
